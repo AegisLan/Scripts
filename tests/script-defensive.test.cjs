@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const directory = process.argv[2] || path.resolve(__dirname, '..');
 const names = ['hanglvzongheng.js', 'caixinads.js', '555Ad.js', 'baishitv.js', 'ithome.js'];
-const scripts = Object.fromEntries(names.map(name => [name, new vm.Script(fs.readFileSync(path.join(directory, 'Aegis' + name), 'utf8'))]));
+const scripts = Object.fromEntries(names.map(name => [name, new vm.Script(fs.readFileSync(path.join(directory, name), 'utf8'))]));
 let count = 0;
 function run(name, globals = {}) {
     const calls = [];

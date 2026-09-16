@@ -23,22 +23,40 @@ hostname = *.qyfxgd.cn, *.weilai555.com, *.ecoliving168.com
 
 **********************************************/
 
+// Aegis defensive fix, 2026-09-17. Based on ddgksf2013/Scripts/555Ad.js
+// Source: https://raw.githubusercontent.com/ddgksf2013/Scripts/master/555Ad.js
+// Invalid or unknown input: $done({}) preserves the original response.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let obj=JSON.parse($response.body);obj.data=obj.data.filter(t=>"advert_self"!==t.layout),obj.data.forEach(t=>{t.list=t.list.filter(t=>3!==t.type)}),$done({body:JSON.stringify(obj)});
+(function () {
+    var result = {};
+    try {
+        var body = typeof $response !== "undefined" && $response && $response.body;
+        if (typeof body === "string" && body.trim()) {
+            var obj = JSON.parse(body);
+            if (obj && typeof obj === "object" && !Array.isArray(obj) && Array.isArray(obj.data)) {
+                var changed = false;
+                obj.data = obj.data.filter(function (item) {
+                    if (item && typeof item === "object" && item.layout === "advert_self") {
+                        changed = true;
+                        return false;
+                    }
+                    return true;
+                });
+                obj.data.forEach(function (item) {
+                    if (!item || typeof item !== "object" || !Array.isArray(item.list)) return;
+                    item.list = item.list.filter(function (entry) {
+                        if (entry && typeof entry === "object" && entry.type === 3) {
+                            changed = true;
+                            return false;
+                        }
+                        return true;
+                    });
+                });
+                if (changed) result = {body: JSON.stringify(obj)};
+            }
+        }
+    } catch (error) {
+        result = {};
+    }
+    $done(result);
+})();
